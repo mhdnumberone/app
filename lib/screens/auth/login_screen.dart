@@ -481,7 +481,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
           SnackBar(
             content: Text(welcomeMessage),
             duration: const Duration(seconds: 4),
-            backgroundColor: colors.primaryColor,
+            backgroundColor: Theme.of(context).extension<AppThemeExtension>()!.primaryColor,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -691,7 +691,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: colors.textPrimaryColor,
+                color: Theme.of(context).extension<AppThemeExtension>()!.textPrimaryColor,
               ),
             ),
             const SizedBox(height: 12),
@@ -706,9 +706,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.1),
+                color: Theme.of(context).extension<AppThemeExtension>()!.primaryColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                border: Border.all(color: Theme.of(context).extension<AppThemeExtension>()!.primaryColor.withOpacity(0.3)),
               ),
               child: Row(
                 children: [
@@ -735,8 +735,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
             icon: const Icon(Icons.arrow_forward, size: 18),
             label: const Text('فهمت، هيا نبدأ!'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: colors.tertiary,
-              foregroundColor: colors.primary,
+              backgroundColor: Theme.of(context).extension<AppThemeExtension>()!.tertiary,
+              foregroundColor: Theme.of(context).extension<AppThemeExtension>()!.primary,
             ),
           ),
         ],
@@ -896,7 +896,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: colors.textPrimaryColor,
+                            color: Theme.of(context).extension<AppThemeExtension>()!.textPrimaryColor,
                           ),
                         ),
                         Text(
@@ -1202,7 +1202,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: colors.textPrimaryColor,
+            color: Theme.of(context).extension<AppThemeExtension>()!.textPrimaryColor,
           ),
         ),
         const SizedBox(height: 12),
@@ -1238,7 +1238,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                     step,
                     style: TextStyle(
                       fontSize: 14,
-                      color: colors.textPrimaryColor,
+                      color: Theme.of(context).extension<AppThemeExtension>()!.textPrimaryColor,
                     ),
                   ),
                 ),
@@ -1336,7 +1336,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(localizations.get('error_requesting_permissions')),
-            backgroundColor: colors.errorColor,
+            backgroundColor: Theme.of(context).extension<AppThemeExtension>()!.errorColor,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -1501,7 +1501,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
             icon: const Icon(Icons.arrow_forward),
             label: const Text('متابعة'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4CAF50),
+              backgroundColor: Theme.of(context).extension<AppThemeExtension>()!.primaryColor,
               foregroundColor: Colors.white,
             ),
           ),
@@ -1704,7 +1704,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.wifi_off, color: colors.primary),
+            Icon(Icons.wifi_off, color: Theme.of(context).extension<AppThemeExtension>()!.primary),
             SizedBox(width: 8),
             Text(localizations.get('network_settings') ?? 'إعدادات الشبكة'),
           ],
@@ -1722,17 +1722,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
             Container(
               padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: colors.primary.withOpacity(0.1),
+                color: Theme.of(context).extension<AppThemeExtension>()!.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info, color: colors.primary),
+                  Icon(Icons.info, color: Theme.of(context).extension<AppThemeExtension>()!.primary),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'التطبيق يعمل في وضع محدود بدون إنترنت',
-                      style: TextStyle(color: colors.primary),
+                      style: TextStyle(color: Theme.of(context).extension<AppThemeExtension>()!.primary),
                     ),
                   ),
                 ],
@@ -1759,7 +1759,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.speed, color: colors.primary),
+            Icon(Icons.speed, color: Theme.of(context).extension<AppThemeExtension>()!.primary),
             SizedBox(width: 8),
             Text(localizations.get('performance_optimization') ?? 'تحسين الأداء'),
           ],
@@ -1824,7 +1824,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label),
-          Text(value, style: TextStyle(fontWeight: FontWeight.bold, color: colors.primary)),
+          Text(value, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).extension<AppThemeExtension>()!.primary)),
         ],
       ),
     );
@@ -1882,14 +1882,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
         children: [
           Row(
             children: [
-              Icon(Icons.notifications_active, color: colors.primary, size: 20),
+              Icon(Icons.notifications_active, color: Theme.of(context).extension<AppThemeExtension>()!.primary, size: 20),
               SizedBox(width: 8),
               Text(
                 localizations.get('notifications') ?? 'الإشعارات',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: colors.primary,
+                  color: Theme.of(context).extension<AppThemeExtension>()!.primary,
                 ),
               ),
               Spacer(),
@@ -2301,7 +2301,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                             child: Icon(
                               Icons.security,
                               size: mq.width * .25,
-                              color: colorScheme.primary,
+                              color: Theme.of(context).extension<AppThemeExtension>()!.primary,
                             ),
                           ),
                           // نقطة صغيرة تشير لحالة الجهاز
@@ -2329,7 +2329,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                     localizations.get('enter_security_code'),
                     style: textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface,
+                      color: Theme.of(context).extension<AppThemeExtension>()!.onSurface,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -2405,14 +2405,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                             fontSize: 20,
                             letterSpacing: 4,
                             fontWeight: FontWeight.bold,
-                            color: _isLocked ? Colors.grey : colorScheme.onSurface,
+                            color: _isLocked ? Colors.grey : Theme.of(context).extension<AppThemeExtension>()!.onSurface,
                           ),
                           decoration: InputDecoration(
                             prefixIcon: Icon(
                               Icons.key,
                               color: _isLocked 
                                   ? Colors.grey 
-                                  : colors.secondary,
+                                  : Theme.of(context).extension<AppThemeExtension>()!.secondary,
                               size: 26,
                             ),
                             suffixIcon: Row(
@@ -2451,7 +2451,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                               borderSide: BorderSide(
                                 color: _isLocked 
                                     ? Colors.red 
-                                    : (_isDeviceDetected ? _getDeviceColor() : colorScheme.primary),
+                                    : (_isDeviceDetected ? _getDeviceColor() : Theme.of(context).extension<AppThemeExtension>()!.primary),
                                 width: 2,
                               ),
                             ),
@@ -2485,7 +2485,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                     children: [
                       CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation(
-                          _isDeviceDetected ? _getDeviceColor() : colors.tertiary,
+                          _isDeviceDetected ? _getDeviceColor() : Theme.of(context).extension<AppThemeExtension>()!.tertiary,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -2515,7 +2515,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                       ),
                       backgroundColor: _isDeviceDetected
                           ? _getDeviceColor()
-                          : colors.tertiary,
+                          : Theme.of(context).extension<AppThemeExtension>()!.tertiary,
                       foregroundColor: Colors.white,
                     ),
                   ),

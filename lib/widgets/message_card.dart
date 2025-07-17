@@ -729,7 +729,7 @@ class _MessageOptionsSheet extends BaseStatelessWidget {
         horizontal: mq.width * .4,
       ),
       decoration: BoxDecoration(
-        color: context.context.appTheme.accentColor,
+        color: context.appTheme.accentColor,
         borderRadius: const BorderRadius.all(Radius.circular(8)),
       ),
     );
@@ -791,7 +791,7 @@ class _MessageOptionsSheet extends BaseStatelessWidget {
 
   Widget _buildDivider(BuildContext context) {
     return Divider(
-      color: context.context.appTheme.primaryLight.withOpacity(0.4),
+      color: context.appTheme.primaryLight.withOpacity(0.4),
       endIndent: mq.width * .04,
       indent: mq.width * .04,
     );
@@ -1031,7 +1031,7 @@ class _OptionItem extends BaseStatelessWidget {
                 '    $name',
                 style: TextStyle(
                   fontSize: 15,
-                  color: context.context.appTheme.textSecondaryColor,
+                  color: context.appTheme.textSecondaryColor,
                   letterSpacing: 0.5,
                 ),
               ),

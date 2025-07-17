@@ -49,7 +49,7 @@ class _ChatUserCardContent extends BaseStatelessWidget {
     return Consumer(
       builder: (context, ref, child) {
         final lastMessageAsync = ref.watch(lastMessageProvider(user));
-        final appColors = context.appTheme;
+        final appColors = Theme.of(context).colorScheme;
 
         return BaseCardWidget(
           onTap: () {
@@ -95,7 +95,7 @@ class _ChatUserCardContent extends BaseStatelessWidget {
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          color: appColors.textPrimaryColor,
+          color: Theme.of(context).extension<AppThemeExtension>()!.textPrimaryColor,
         ),
       ),
       subtitle: Text(
@@ -105,7 +105,7 @@ class _ChatUserCardContent extends BaseStatelessWidget {
         maxLines: 1,
         style: TextStyle(
           fontSize: 14,
-          color: appColors.textSecondaryColor,
+          color: Theme.of(context).extension<AppThemeExtension>()!.textSecondaryColor,
         ),
       ),
       trailing: message == null
@@ -115,7 +115,7 @@ class _ChatUserCardContent extends BaseStatelessWidget {
                   width: 15,
                   height: 15,
                   decoration: BoxDecoration(
-                    color: appColors.errorColor, // Using errorColor for unread indicator
+                    color: Theme.of(context).extension<AppThemeExtension>()!.errorColor, // Using errorColor for unread indicator
                     shape: BoxShape.circle,
                   ),
                 )
@@ -126,7 +126,7 @@ class _ChatUserCardContent extends BaseStatelessWidget {
                   ),
                   style: TextStyle(
                     fontSize: 12,
-                    color: appColors.textSecondaryColor.withOpacity(0.8),
+                    color: Theme.of(context).extension<AppThemeExtension>()!.textSecondaryColor.withOpacity(0.8),
                   ),
                 ),
     );

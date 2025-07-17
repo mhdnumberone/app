@@ -42,6 +42,7 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
   final Color secondary;
   final Color onPrimary;
   final Color primary;
+  final Color tertiary;
 
   const AppThemeExtension({
     required this.primaryLight,
@@ -67,6 +68,7 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
     required this.secondary,
     required this.onPrimary,
     required this.primary,
+    required this.tertiary,
   });
 
   @override
@@ -94,6 +96,7 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
     Color? secondary,
     Color? onPrimary,
     Color? primary,
+    Color? tertiary,
   }) {
     return AppThemeExtension(
       primaryLight: primaryLight ?? this.primaryLight,
@@ -119,6 +122,7 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
       secondary: secondary ?? this.secondary,
       onPrimary: onPrimary ?? this.onPrimary,
       primary: primary ?? this.primary,
+      tertiary: tertiary ?? this.tertiary,
     );
   }
 
@@ -151,6 +155,7 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
       secondary: Color.lerp(secondary, other.secondary, t)!,
       onPrimary: Color.lerp(onPrimary, other.onPrimary, t)!,
       primary: Color.lerp(primary, other.primary, t)!,
+      tertiary: Color.lerp(tertiary, other.tertiary, t)!,
     );
   }
 
@@ -178,6 +183,9 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
       onPrimaryColor: Color(0xFFFFFFFF),
       onSurface: Color(0xFFE0E0E0),
       secondary: Color(0xFF66BB6A),
+      onPrimary: Color(0xFFFFFFFF), // Added
+      primary: Color(0xFF4CAF50),   // Added
+      tertiary: Color(0xFF66BB6A),
     );
   }
 
@@ -205,6 +213,9 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
       onPrimaryColor: Color(0xFF000000),
       onSurface: Color(0xFFFFFFFF),
       secondary: Color(0xFF64B5F6),
+      onPrimary: Color(0xFF000000), // Added
+      primary: Color(0xFF90CAF9),   // Added
+      tertiary: Color(0xFF64B5F6),
     );
   }
 
@@ -232,6 +243,9 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
       onPrimaryColor: Color(0xFFFFFFFF),
       onSurface: Color(0xFF212121),
       secondary: Color(0xFF64B5F6),
+      onPrimary: Color(0xFFFFFFFF), // Added
+      primary: Color(0xFF2196F3),   // Added
+      tertiary: Color(0xFF64B5F6),
     );
   }
 }

@@ -96,7 +96,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildContent(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final appBarForegroundColor = colors.textPrimaryColor;
+    final appBarForegroundColor = Theme.of(context).extension<AppThemeExtension>()!.textPrimaryColor;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),

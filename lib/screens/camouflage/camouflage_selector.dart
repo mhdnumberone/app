@@ -31,7 +31,7 @@ class _CamouflageSelectorState extends ConsumerState<CamouflageSelector> {
       child: Scaffold(
         backgroundColor: context.appTheme.backgroundColor,
         body: DecoyManager.instance.getDecoyScreen(settings.decoyScreenType),
-        floatingActionButton: _showSecretMode ? _buildSecretFAB(settings, colors) : null,
+        floatingActionButton: _showSecretMode ? _buildSecretFAB(settings, Theme.of(context).colorScheme) : null,
       ),
     );
   }
