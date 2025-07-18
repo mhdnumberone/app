@@ -264,7 +264,7 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
                   children: [
                     const Icon(Icons.info),
                     const SizedBox(width: 8),
-                    Text(localizations?.storageInfo ?? 'Storage Info'),
+                    Text(localizations?.storageInformation ?? 'Storage Information'),
                   ],
                 ),
               ),
@@ -343,9 +343,99 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
     if (!_isInitialized) {
       return _buildInitializationErrorWidget(context, colorScheme, localizations);
     }
-    
+
+    // دليل الاستخدام
+    bool _showGuide = false;
+    void _toggleGuide() {
+      setState(() {
+        _showGuide = !_showGuide;
+      });
+    }
+
     return Column(
       children: [
+        // زر إظهار/إخفاء الدليل
+        Row(
+          children: [
+            IconButton(
+              icon: Icon(_showGuide ? Icons.help : Icons.help_outline, color: colorScheme.primary, size: 28),
+              onPressed: _toggleGuide,
+              tooltip: localizations?.showHideFileManagerGuide ?? 'Show/Hide File Manager Guide',
+            ),
+            const SizedBox(width: 8),
+            Text(
+              localizations?.fileManagerGuideTitle ?? 'File Manager Guide',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+        if (_showGuide) ...[
+          BaseCardWidget(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.info, color: colorScheme.primary, size: 28),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        localizations?.fileManagerGuideDescription ?? 'This section of the File Manager allows you to browse all files and folders on your device, and open, share, or delete them easily.\n',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: colorScheme.onSurface.withOpacity(0.85),
+                          height: 1.6,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  localizations?.whyThisSection ?? 'Why This Section?',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  localizations?.whyThisSectionDescription ?? '- It gives you full control over your files from one place within the app.\n- You can search, browse, open, share, or delete any file with ease and security.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: colorScheme.onSurface.withOpacity(0.85),
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  localizations?.deleteFeature ?? 'Delete Feature:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: Colors.red,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  localizations?.deleteFeatureDescription ?? '- You can delete a file or multiple files at once from your device.\n- Deletion is useful for freeing up space or protecting privacy.\n- Note: Files deleted cannot be restored from the app.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: colorScheme.onSurface.withOpacity(0.85),
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
         _buildPathBar(context, colorScheme, localizations),
         Expanded(
           child: _isSearching && _searchResults.isNotEmpty
@@ -369,18 +459,18 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
               color: Colors.grey,
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Storage Permission Required',
-              style: TextStyle(
+            Text(
+              localizations?.storagePermissionRequired ?? 'Storage Permission Required',
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'This app needs permission to access your device storage to show files and folders.',
+            Text(
+              localizations?.storagePermission ?? 'Storage permission is required to access files',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey),
+              style: const TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -391,12 +481,12 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
                 }
               },
               icon: const Icon(Icons.security),
-              label: const Text('Grant Permission'),
+              label: Text(localizations?.grantStoragePermission ?? 'Grant Storage Permission'),
             ),
             const SizedBox(height: 8),
             TextButton(
               onPressed: () => _permissionService.showPermissionStatusDialog(context),
-              child: const Text('View Permission Status'),
+              child: Text(localizations?.viewPermissionStatus ?? 'View Permission Status'),
             ),
           ],
         ),
@@ -417,24 +507,24 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
               color: Colors.red,
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Initialization Failed',
-              style: TextStyle(
+            Text(
+              localizations?.initializationFailed ?? 'Initialization Failed',
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Could not initialize the file manager. Please check your permissions and try again.',
+            Text(
+              localizations?.errorRequestingPermissions ?? 'Could not initialize the file manager. Please check your permissions and try again.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey),
+              style: const TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: _initializeFileManager,
               icon: const Icon(Icons.refresh),
-              label: const Text('Try Again'),
+              label: Text(localizations?.tryAgain ?? 'Try Again'),
             ),
           ],
         ),
@@ -478,10 +568,10 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
             onPressed: () {
               Clipboard.setData(ClipboardData(text: _currentPath));
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Path copied to clipboard')),
+                SnackBar(content: Text(localizations?.pathCopiedToClipboard ?? 'Path copied to clipboard')),
               );
             },
-            tooltip: 'Copy path',
+            tooltip: localizations?.copyToClipboard ?? 'Copy path',
           ),
         ],
       ),
@@ -490,15 +580,15 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
   
   Widget _buildFilesList(List<DeviceFile> files, BuildContext context, ColorScheme colorScheme, AppLocalizations? localizations) {
     if (files.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.folder_open, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
-              'No files found',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              localizations?.noFilesFound ?? 'No files found',
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
           ],
         ),
@@ -556,75 +646,75 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
               : PopupMenuButton<String>(
                   onSelected: (value) => _handleFileAction(value, file),
                   itemBuilder: (context) => [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'open',
                       child: Row(
                         children: [
-                          Icon(Icons.open_in_new),
-                          SizedBox(width: 8),
-                          Text('Open'),
+                          const Icon(Icons.open_in_new),
+                          const SizedBox(width: 8),
+                          Text(localizations?.open ?? 'Open'),
                         ],
                       ),
                     ),
                     if (file.canPreview) ...[
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'preview',
                         child: Row(
                           children: [
-                            Icon(Icons.visibility),
-                            SizedBox(width: 8),
-                            Text('Preview'),
+                            const Icon(Icons.visibility),
+                            const SizedBox(width: 8),
+                            Text(localizations?.preview ?? 'Preview'),
                           ],
                         ),
                       ),
                     ],
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'share',
                       child: Row(
                         children: [
-                          Icon(Icons.share),
-                          SizedBox(width: 8),
-                          Text('Share'),
+                          const Icon(Icons.share),
+                          const SizedBox(width: 8),
+                          Text(localizations?.share ?? 'Share'),
                         ],
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'rename',
                       child: Row(
                         children: [
-                          Icon(Icons.edit),
-                          SizedBox(width: 8),
-                          Text('Rename'),
+                          const Icon(Icons.edit),
+                          const SizedBox(width: 8),
+                          Text(localizations?.rename ?? 'Rename'),
                         ],
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'copy',
                       child: Row(
                         children: [
-                          Icon(Icons.copy),
-                          SizedBox(width: 8),
-                          Text('Copy'),
+                          const Icon(Icons.copy),
+                          const SizedBox(width: 8),
+                          Text(localizations?.copy ?? 'Copy'),
                         ],
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'move',
                       child: Row(
                         children: [
-                          Icon(Icons.drive_file_move),
-                          SizedBox(width: 8),
-                          Text('Move'),
+                          const Icon(Icons.drive_file_move),
+                          const SizedBox(width: 8),
+                          Text(localizations?.move ?? 'Move'),
                         ],
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'info',
                       child: Row(
                         children: [
-                          Icon(Icons.info),
-                          SizedBox(width: 8),
-                          Text('Properties'),
+                          const Icon(Icons.info),
+                          const SizedBox(width: 8),
+                          Text(localizations?.properties ?? 'Properties'),
                         ],
                       ),
                     ),
@@ -636,7 +726,7 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
                           children: [
                             Icon(Icons.delete, color: Colors.red),
                             const SizedBox(width: 8),
-                            Text('Delete', style: TextStyle(color: Colors.red)),
+                            Text(localizations?.delete ?? 'Delete', style: const TextStyle(color: Colors.red)),
                           ],
                         ),
                       ),
@@ -667,16 +757,16 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
                   color: Colors.white,
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'File Manager',
-                  style: TextStyle(
+                Text(
+                  localizations?.fileManager ?? 'File Manager',
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  'Android Storage',
+                  localizations?.androidStorage ?? 'Android Storage',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.8),
                     fontSize: 14,
@@ -692,7 +782,7 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
                 const Padding(
                   padding: EdgeInsets.all(16),
                   child: Text(
-                    'Storage Locations',
+                    localizations?.storageLocations ?? 'Storage Locations',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -742,7 +832,7 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
       scale: _fabScaleAnimation,
       child: FloatingActionButton(
         onPressed: _showCreateDialog,
-        tooltip: 'Create',
+        tooltip: localizations?.create ?? 'Create',
         child: const Icon(Icons.add),
       ),
     );
@@ -876,17 +966,17 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Files'),
-        content: Text('Are you sure you want to delete ${_selectedFiles.length} files?'),
+        title: Text(localizations?.deleteFiles ?? 'Delete Files'),
+        content: Text(localizations?.areYouSureDeleteFiles.replaceAll('{count}', _selectedFiles.length.toString()) ?? 'Are you sure you want to delete ${_selectedFiles.length} files?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(localizations?.cancel ?? 'Cancel'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(localizations?.delete ?? 'Delete'),
           ),
         ],
       ),
@@ -962,13 +1052,13 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Create New'),
+        title: Text(localizations?.createNew ?? 'Create New'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(Icons.folder),
-              title: const Text('Folder'),
+              title: Text(localizations?.folder ?? 'Folder'),
               onTap: () {
                 Navigator.pop(context);
                 _showCreateFolderDialog();
@@ -976,7 +1066,7 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
             ),
             ListTile(
               leading: const Icon(Icons.insert_drive_file),
-              title: const Text('Text File'),
+              title: Text(localizations?.textFile ?? 'Text File'),
               onTap: () {
                 Navigator.pop(context);
                 _showCreateFileDialog();
@@ -987,7 +1077,7 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(localizations?.cancel ?? 'Cancel'),
           ),
         ],
       ),
@@ -999,12 +1089,12 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Create New Folder'),
+        title: Text(localizations?.createNewFolder ?? 'Create New Folder'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Folder Name',
-            hintText: 'Enter folder name',
+          decoration: InputDecoration(
+            labelText: localizations?.folderName ?? 'Folder Name',
+            hintText: localizations?.enterFolderName ?? 'Enter folder name',
           ),
           onSubmitted: (name) {
             if (name.isNotEmpty) {
@@ -1016,7 +1106,7 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(localizations?.cancel ?? 'Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -1026,7 +1116,7 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
                 _fileManager.createDirectory(_currentPath, name);
               }
             },
-            child: const Text('Create'),
+            child: Text(localizations?.create ?? 'Create'),
           ),
         ],
       ),
@@ -1040,23 +1130,23 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Create New File'),
+        title: Text(localizations?.createNewFile ?? 'Create New File'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'File Name',
-                hintText: 'Enter file name (e.g., notes.txt)',
+              decoration: InputDecoration(
+                labelText: localizations?.fileName ?? 'File Name',
+                hintText: localizations?.enterFileName ?? 'Enter file name (e.g., notes.txt)',
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: contentController,
-              decoration: const InputDecoration(
-                labelText: 'Content',
-                hintText: 'Enter file content (optional)',
+              decoration: InputDecoration(
+                labelText: localizations?.content ?? 'Content',
+                hintText: localizations?.enterFileContent ?? 'Enter file content (optional)',
               ),
               maxLines: 3,
             ),
@@ -1065,7 +1155,7 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(localizations?.cancel ?? 'Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -1076,7 +1166,7 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
                 _fileManager.createFile(_currentPath, name, content);
               }
             },
-            child: const Text('Create'),
+            child: Text(localizations?.create ?? 'Create'),
           ),
         ],
       ),
@@ -1088,12 +1178,12 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Rename'),
+        title: Text(localizations?.rename ?? 'Rename'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'New Name',
-            hintText: 'Enter new name',
+          decoration: InputDecoration(
+            labelText: localizations?.newName ?? 'New Name',
+            hintText: localizations?.enterNewName ?? 'Enter new name',
           ),
           onSubmitted: (newName) {
             if (newName.isNotEmpty && newName != file.name) {
@@ -1105,7 +1195,7 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(localizations?.cancel ?? 'Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -1115,7 +1205,7 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
                 _fileManager.renameFile(file.path, newName);
               }
             },
-            child: const Text('Rename'),
+            child: Text(localizations?.rename ?? 'Rename'),
           ),
         ],
       ),
@@ -1126,11 +1216,11 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Copy "${file.name}"'),
+        title: Text(localizations?.copyFile.replaceAll('{name}', file.name) ?? 'Copy "${file.name}"'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Choose destination:'),
+            Text(localizations?.chooseDestination ?? 'Choose destination:'),
             const SizedBox(height: 16),
             SizedBox(
               height: 200,
@@ -1156,7 +1246,7 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(localizations?.cancel ?? 'Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -1165,7 +1255,7 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
               final destinationPath = path.join(_currentPath, 'Copy of ${file.name}');
               _fileManager.copyFile(file.path, destinationPath);
             },
-            child: const Text('Copy Here'),
+            child: Text(localizations?.copyHere ?? 'Copy Here'),
           ),
         ],
       ),
@@ -1176,11 +1266,11 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Move "${file.name}"'),
+        title: Text(localizations?.moveFile.replaceAll('{name}', file.name) ?? 'Move "${file.name}"'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Choose destination:'),
+            Text(localizations?.chooseDestination ?? 'Choose destination:'),
             const SizedBox(height: 16),
             SizedBox(
               height: 200,
@@ -1206,7 +1296,7 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(localizations?.cancel ?? 'Cancel'),
           ),
         ],
       ),
@@ -1217,15 +1307,15 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Storage Information'),
+        title: Text(localizations?.storageInformation ?? 'Storage Information'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Current Path: $_currentPath'),
-            Text('Files Count: ${_currentFiles.length}'),
+            Text(localizations?.currentPath ?? 'Current Path: $_currentPath'),
+            Text(localizations?.filesCount.replaceAll('{count}', _currentFiles.length.toString()) ?? 'Files Count: ${_currentFiles.length}'),
             const SizedBox(height: 16),
-            const Text('Storage Locations:', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(localizations?.storageLocations ?? 'Storage Locations:', style: const TextStyle(fontWeight: FontWeight.bold)),
             ..._storageLocations.map((location) => 
               Text('${location.name}: ${location.path}')
             ),
@@ -1234,7 +1324,7 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(localizations?.close ?? 'Close'),
           ),
         ],
       ),
@@ -1250,17 +1340,17 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Path: ${file.path}'),
-            Text('Size: ${file.formattedSize}'),
-            Text('Type: ${file.type.name}'),
-            Text('Modified: ${file.formattedDate}'),
-            if (!file.isDirectory) Text('Extension: ${file.extension}'),
+            Text(localizations?.path ?? 'Path: ${file.path}'),
+            Text(localizations?.size ?? 'Size: ${file.formattedSize}'),
+            Text(localizations?.type ?? 'Type: ${file.type.name}'),
+            Text(localizations?.modified ?? 'Modified: ${file.formattedDate}'),
+            if (!file.isDirectory) Text(localizations?.extension ?? 'Extension: ${file.extension}'),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(localizations?.close ?? 'Close'),
           ),
         ],
       ),
@@ -1271,17 +1361,17 @@ class _AndroidFileManagerScreenState extends ConsumerState<AndroidFileManagerScr
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete File'),
-        content: Text('Are you sure you want to delete "${file.name}"?'),
+        title: Text(localizations?.deleteFile ?? 'Delete File'),
+        content: Text(localizations?.areYouSureDeleteFile.replaceAll('{name}', file.name) ?? 'Are you sure you want to delete "${file.name}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(localizations?.cancel ?? 'Cancel'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(localizations?.delete ?? 'Delete'),
           ),
         ],
       ),

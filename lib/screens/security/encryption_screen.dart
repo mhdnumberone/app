@@ -16,6 +16,7 @@ import '../../core/error/error_handler.dart';
 import '../../core/utils/logger.dart';
 import '../../core/utils/secure_data_manager.dart';
 import '../../core/managers/settings_manager.dart';
+import '../../core/widgets/rebuild_optimized_widgets.dart';
 
 // Operation modes for encryption
 enum OperationMode {
@@ -209,6 +210,22 @@ class _EncryptionScreenState extends ConsumerState<EncryptionScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _outputController = TextEditingController();
 
+  bool _showGuide = false;
+
+  void _toggleGuide() {
+    setState(() {
+      _showGuide = !_showGuide;
+    });
+  }
+
+  void _clearAllFields() {
+    ref.read(encryptionStateProvider.notifier).clearAll();
+    _secretMessageController.clear();
+    _coverTextController.clear();
+    _passwordController.clear();
+    _outputController.clear();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -238,13 +255,48 @@ class _EncryptionScreenState extends ConsumerState<EncryptionScreen> {
     ref.read(encryptionStateProvider.notifier).updatePasswordInput(_passwordController.text);
   }
 
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    int maxLines = 1,
+    bool obscureText = false, // سيبقى هنا فقط للتحكم في InputDecoration
+    Widget? suffixIcon,
+    bool enabled = true,
+  }) {
+    return OptimizedTextField(
+      controller: controller,
+      maxLines: maxLines,
+      enabled: enabled,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+        ),
+        filled: true,
+        fillColor: Theme.of(context).colorScheme.surface,
+        suffixIcon: suffixIcon,
+      ),
+      // لا تمرر obscureText هنا
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(encryptionStateProvider);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final localizations = AppLocalizations.of(context);
-    
+
     // Update output controller when state changes
     if (_outputController.text != state.outputText) {
       _outputController.text = state.outputText;
@@ -258,13 +310,7 @@ class _EncryptionScreenState extends ConsumerState<EncryptionScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.clear_all),
-            onPressed: () {
-              ref.read(encryptionStateProvider.notifier).clearAll();
-              _secretMessageController.clear();
-              _coverTextController.clear();
-              _passwordController.clear();
-              _outputController.clear();
-            },
+            onPressed: _clearAllFields,
             tooltip: localizations?.clearAll ?? 'Clear All',
           ),
         ],
@@ -274,268 +320,249 @@ class _EncryptionScreenState extends ConsumerState<EncryptionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildOperationModeSelector(state, colorScheme, localizations),
-            const SizedBox(height: 24),
-            _buildInputFields(state, colorScheme, localizations),
-            const SizedBox(height: 24),
-            _buildActionButtons(state, colorScheme, localizations),
-            const SizedBox(height: 24),
-            _buildOutputSection(state, colorScheme, localizations),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOperationModeSelector(EncryptionState state, ColorScheme colorScheme, AppLocalizations? localizations) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              localizations?.operationMode ?? 'Operation Mode',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: OperationMode.values.map((mode) {
-                final isSelected = state.operationMode == mode;
-                return FilterChip(
-                  selected: isSelected,
-                  label: Text(_getOperationModeLabel(mode, localizations)),
-                  onSelected: (selected) {
-                    if (selected) {
-                      ref.read(encryptionStateProvider.notifier).updateOperationMode(mode);
-                    }
-                  },
-                  selectedColor: colorScheme.primaryContainer,
-                  backgroundColor: colorScheme.surface,
-                  labelStyle: TextStyle(
-                    color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
+            // زر إظهار/إخفاء الدليل
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(_showGuide ? Icons.help : Icons.help_outline, color: colorScheme.primary, size: 28),
+                  onPressed: _toggleGuide,
+                  tooltip: 'إظهار/إخفاء دليل الاستخدام',
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'دليل الاستخدام',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.primary,
                   ),
-                );
-              }).toList(),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInputFields(EncryptionState state, ColorScheme colorScheme, AppLocalizations? localizations) {
-    return Column(
-      children: [
-        _buildTextField(
-          controller: _secretMessageController,
-          label: _getSecretInputLabel(state.operationMode, localizations),
-          hint: _getSecretInputHint(state.operationMode, localizations),
-          maxLines: 4,
-          colorScheme: colorScheme,
-        ),
-        if (state.useSteganography) ...[
-          const SizedBox(height: 16),
-          _buildTextField(
-            controller: _coverTextController,
-            label: localizations?.coverText ?? 'Cover Text',
-            hint: localizations?.coverTextHint ?? 'Enter cover text to hide message in...',
-            maxLines: 3,
-            colorScheme: colorScheme,
-          ),
-        ],
-        if (state.usePassword) ...[
-          const SizedBox(height: 16),
-          _buildPasswordField(state, colorScheme, localizations),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required int maxLines,
-    required ColorScheme colorScheme,
-  }) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.outline),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
-        ),
-        filled: true,
-        fillColor: colorScheme.surface,
-      ),
-    );
-  }
-
-  Widget _buildPasswordField(EncryptionState state, ColorScheme colorScheme, AppLocalizations? localizations) {
-    return TextField(
-      controller: _passwordController,
-      obscureText: !state.isPasswordVisible,
-      decoration: InputDecoration(
-        labelText: localizations?.password ?? 'Password',
-        hintText: localizations?.passwordHint ?? 'Enter encryption password...',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.outline),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
-        ),
-        filled: true,
-        fillColor: colorScheme.surface,
-        suffixIcon: IconButton(
-          icon: Icon(
-            state.isPasswordVisible ? Icons.visibility_off : Icons.visibility,
-            color: colorScheme.onSurface,
-          ),
-          onPressed: () {
-            ref.read(encryptionStateProvider.notifier).togglePasswordVisibility();
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionButtons(EncryptionState state, ColorScheme colorScheme, AppLocalizations? localizations) {
-    return Row(
-      children: [
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: state.isLoading ? null : () {
-              ref.read(encryptionStateProvider.notifier).performOperation();
-            },
-            icon: state.isLoading
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onPrimary),
+            if (_showGuide) ...[
+              BaseCardWidget(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.info, color: colorScheme.primary, size: 28),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'قسم التشفير يتيح لك حماية رسائلك أو إخفائها داخل نصوص أخرى. اختر نمط العملية المناسب من القائمة المنسدلة، ثم أدخل البيانات المطلوبة.\n',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: colorScheme.onSurface.withOpacity(0.85),
+                              height: 1.6,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  )
-                : Icon(_getOperationIcon(state.operationMode)),
-            label: Text(
-              state.isLoading 
-                  ? (localizations?.processing ?? 'Processing...')
-                  : _getOperationButtonLabel(state.operationMode, localizations),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colorScheme.primary,
-              foregroundColor: colorScheme.onPrimary,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        OutlinedButton.icon(
-          onPressed: () {
-            ref.read(encryptionStateProvider.notifier).clearOutput();
-            _outputController.clear();
-          },
-          icon: const Icon(Icons.clear),
-          label: Text(localizations?.clear ?? 'Clear'),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: colorScheme.primary,
-            side: BorderSide(color: colorScheme.primary),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOutputSection(EncryptionState state, ColorScheme colorScheme, AppLocalizations? localizations) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              localizations?.output ?? 'Output',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
-            ),
-            const Spacer(),
-            if (state.outputText.isNotEmpty) ...[
-              IconButton(
-                icon: const Icon(Icons.copy),
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: state.outputText));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(localizations?.copiedToClipboard ?? 'Copied to clipboard'),
-                      backgroundColor: colorScheme.primary,
+                    const SizedBox(height: 12),
+                    Text(
+                      'شرح الأنماط المتاحة:',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: colorScheme.primary,
+                      ),
                     ),
-                  );
-                },
-                tooltip: localizations?.copyToClipboard ?? 'Copy to clipboard',
+                    const SizedBox(height: 8),
+                    _buildGuideItem('تشفير (Encrypt):',
+                      'تحويل الرسالة إلى نص مشفر باستخدام كلمة مرور. لا يمكن قراءة الرسالة إلا بعد فك التشفير بنفس كلمة المرور.'),
+                    _buildGuideItem('فك تشفير (Decrypt):',
+                      'إرجاع الرسالة المشفرة إلى نصها الأصلي باستخدام كلمة المرور الصحيحة.'),
+                    _buildGuideItem('إخفاء (Hide):',
+                      'إخفاء رسالة سرية داخل نص غلاف باستخدام تقنية الإخفاء (Steganography).'),
+                    _buildGuideItem('كشف (Reveal):',
+                      'استخراج الرسالة المخفية من نص الغلاف.'),
+                    _buildGuideItem('تشفير وإخفاء (Encrypt & Hide):',
+                      'تشفير الرسالة أولاً ثم إخفاؤها داخل نص غلاف. حماية مزدوجة.'),
+                    _buildGuideItem('كشف وفك تشفير (Reveal & Decrypt):',
+                      'استخراج الرسالة المخفية من نص الغلاف ثم فك تشفيرها بكلمة المرور.'),
+                    const SizedBox(height: 12),
+                    Text(
+                      '- أدخل الرسالة أو النص المطلوب في الحقول المناسبة.\n- إذا كان النمط يتطلب كلمة مرور أو نص غلاف، ستظهر الحقول تلقائياً.\n- اضغط زر تنفيذ العملية للحصول على النتيجة.\n- استخدم زر "مسح" لمسح جميع الحقول.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: colorScheme.onSurface.withOpacity(0.8),
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              IconButton(
-                icon: const Icon(Icons.share),
-                onPressed: () {
-                  Share.share(state.outputText);
-                },
-                tooltip: localizations?.share ?? 'Share',
-              ),
+              const SizedBox(height: 18),
             ],
+            BaseCardWidget(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    localizations?.operationMode ?? 'Operation Mode',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButton<OperationMode>(
+                    value: state.operationMode,
+                    isExpanded: true,
+                    items: OperationMode.values.map((mode) {
+                      return DropdownMenuItem<OperationMode>(
+                        value: mode,
+                        child: Text(_getOperationModeLabel(mode, localizations)),
+                      );
+                    }).toList(),
+                    onChanged: (mode) {
+                      if (mode != null && mode != state.operationMode) {
+                        _clearAllFields();
+                        ref.read(encryptionStateProvider.notifier).updateOperationMode(mode);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            BaseCardWidget(
+              child: Column(
+                children: [
+                  _buildInputField(
+                    controller: _secretMessageController,
+                    label: _getSecretInputLabel(state.operationMode, localizations),
+                    hint: _getSecretInputHint(state.operationMode, localizations),
+                    maxLines: 4,
+                  ),
+                  if (state.useSteganography) ...[
+                    const SizedBox(height: 16),
+                    _buildInputField(
+                      controller: _coverTextController,
+                      label: localizations?.coverText ?? 'Cover Text',
+                      hint: localizations?.coverTextHint ?? 'Enter cover text to hide message in...',
+                      maxLines: 3,
+                    ),
+                  ],
+                  if (state.usePassword) ...[
+                    const SizedBox(height: 16),
+                    _buildInputField(
+                      controller: _passwordController,
+                      label: localizations?.password ?? 'Password',
+                      hint: localizations?.passwordHint ?? 'Enter encryption password...',
+                      obscureText: !state.isPasswordVisible,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          state.isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                          color: colorScheme.onSurface,
+                        ),
+                        onPressed: () {
+                          ref.read(encryptionStateProvider.notifier).togglePasswordVisibility();
+                        },
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OptimizedButton(
+                    onPressed: state.isLoading ? null : () {
+                      ref.read(encryptionStateProvider.notifier).performOperation();
+                    },
+                    loading: state.isLoading,
+                    child: Text(
+                      state.isLoading
+                          ? (localizations?.processing ?? 'Processing...')
+                          : _getOperationButtonLabel(state.operationMode, localizations),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                OptimizedButton(
+                  onPressed: () {
+                    ref.read(encryptionStateProvider.notifier).clearOutput();
+                    _outputController.clear();
+                  },
+                  child: Row(
+                    children: [
+                      const Icon(Icons.clear),
+                      const SizedBox(width: 4),
+                      Text(localizations?.clear ?? 'Clear'),
+                    ],
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red, // لون أحمر
+                    side: const BorderSide(color: Colors.red),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            BaseCardWidget(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        localizations?.output ?? 'Output',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      const Spacer(),
+                      if (state.outputText.isNotEmpty) ...[
+                        IconButton(
+                          icon: const Icon(Icons.copy),
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(text: state.outputText));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(localizations?.copiedToClipboard ?? 'Copied to clipboard'),
+                                backgroundColor: colorScheme.primary,
+                              ),
+                            );
+                          },
+                          tooltip: localizations?.copyToClipboard ?? 'Copy to clipboard',
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.share),
+                          onPressed: () {
+                            Share.share(state.outputText);
+                          },
+                          tooltip: localizations?.share ?? 'Share',
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  _buildInputField(
+                    controller: _outputController,
+                    label: '',
+                    hint: localizations?.outputHint ?? 'Output will appear here...',
+                    maxLines: 6,
+                    enabled: false,
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
-        const SizedBox(height: 8),
-        Container(
-          width: double.infinity,
-          constraints: const BoxConstraints(minHeight: 120),
-          decoration: BoxDecoration(
-            color: colorScheme.surface,
-            border: Border.all(color: colorScheme.outline),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: TextField(
-            controller: _outputController,
-            readOnly: true,
-            maxLines: null,
-            decoration: InputDecoration(
-              hintText: localizations?.outputHint ?? 'Output will appear here...',
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.all(16),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -618,5 +645,40 @@ class _EncryptionScreenState extends ConsumerState<EncryptionScreen> {
       case OperationMode.revealAndDecrypt:
         return localizations?.revealAndDecryptButton ?? 'Reveal & Decrypt';
     }
+  }
+
+  Widget _buildGuideItem(String title, String desc) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('• ', style: TextStyle(fontSize: 16)),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                text: title + ' ',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
+                  fontSize: 14,
+                ),
+                children: [
+                  TextSpan(
+                    text: desc,
+                    style: TextStyle(
+                      fontWeight: FontWeight.normal,
+                      color: colorScheme.onSurface.withOpacity(0.85),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
